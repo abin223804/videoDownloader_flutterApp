@@ -11,12 +11,18 @@ class DownloadTaskInfo {
   DownloadTaskInfo({required this.taskId, required this.status, required this.progress});
 }
 
-class DownloadManagerNotifier extends StateNotifier<Map<String, DownloadTaskInfo>> {
+class DownloadManagerNotifier extends Notifier<Map<String, DownloadTaskInfo>> {
   final ReceivePort _port = ReceivePort();
 
-  DownloadManagerNotifier() : super({}) {
+  @override
+  Map<String, DownloadTaskInfo> build() {
+    // Keep reference so it isn't garbage collected
+    ref.onDispose(() => _unbindBackgroundIsolate());
+    
     _bindBackgroundIsolate();
     FlutterDownloader.registerCallback(downloadCallback);
+    
+    return {};
   }
 
   void _bindBackgroundIsolate() {
@@ -44,20 +50,14 @@ class DownloadManagerNotifier extends StateNotifier<Map<String, DownloadTaskInfo
 
   @pragma('vm:entry-point')
   static void downloadCallback(String id, int status, int progress) {
-    final SendPort? send(String id, int status, int progress) {
+    SendPort? send(String id, int status, int progress) {
       return IsolateNameServer.lookupPortByName('downloader_send_port');
     }
     final port = send(id, status, progress);
     port?.send([id, status, progress]);
   }
-
-  @override
-  void dispose() {
-    _unbindBackgroundIsolate();
-    super.dispose();
-  }
 }
 
-final downloadManagerProvider = StateNotifierProvider<DownloadManagerNotifier, Map<String, DownloadTaskInfo>>((ref) {
+final downloadManagerProvider = NotifierProvider<DownloadManagerNotifier, Map<String, DownloadTaskInfo>>(() {
   return DownloadManagerNotifier();
 });

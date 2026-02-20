@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../downloader/presentation/screens/home_screen.dart';
+import '../../../downloader/presentation/screens/home_screen.dart';
 
 class DisclaimerScreen extends StatelessWidget {
   const DisclaimerScreen({super.key});

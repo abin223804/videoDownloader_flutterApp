@@ -4,9 +4,14 @@ import 'package:share_plus/share_plus.dart';
 import '../../data/models/downloaded_video.dart';
 import 'video_player_screen.dart';
 
-class GalleryScreen extends StatelessWidget {
+class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
+  @override
+  State<GalleryScreen> createState() => _GalleryScreenState();
+}
+
+class _GalleryScreenState extends State<GalleryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

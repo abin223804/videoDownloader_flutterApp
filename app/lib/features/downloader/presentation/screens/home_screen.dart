@@ -5,7 +5,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../providers/downloader_provider.dart';
 import '../../domain/entities/media_info.dart';
-import '../../gallery/presentation/screens/gallery_screen.dart';
+import '../../../gallery/presentation/screens/gallery_screen.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -40,7 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.download_done),
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GalleryScreen()));
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => GalleryScreen()));
             },
             tooltip: 'Gallery',
           ),

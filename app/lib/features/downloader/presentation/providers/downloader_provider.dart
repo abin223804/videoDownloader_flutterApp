@@ -32,21 +32,21 @@ class DownloaderState {
   }
 }
 
-// The Notifier controlling the state
-class DownloaderNotifier extends StateNotifier<DownloaderState> {
-  final DownloaderRepository repository;
+class DownloaderNotifier extends Notifier<DownloaderState> {
+  late final DownloaderRepository repository;
 
-  DownloaderNotifier({required this.repository}) : super(DownloaderState());
+  @override
+  DownloaderState build() {
+    repository = ref.watch(downloaderRepositoryProvider);
+    return DownloaderState();
+  }
 
   Future<void> extractMediaInfo(String url) async {
-    // Basic validation
     if (url.isEmpty || !Uri.parse(url).isAbsolute) {
       state = state.copyWith(error: 'Please enter a valid URL');
       return;
     }
-
-    state = DownloaderState(isLoading: true); // Reset state to loading
-
+    state = DownloaderState(isLoading: true); 
     try {
       final info = await repository.extractMetadata(url);
       state = state.copyWith(isLoading: false, mediaInfo: info);
@@ -60,7 +60,6 @@ class DownloaderNotifier extends StateNotifier<DownloaderState> {
   }
 }
 
-// Expose the DownloaderNotifier
-final downloaderProvider = StateNotifierProvider<DownloaderNotifier, DownloaderState>((ref) {
-  return DownloaderNotifier(repository: ref.watch(downloaderRepositoryProvider));
+final downloaderProvider = NotifierProvider<DownloaderNotifier, DownloaderState>(() {
+  return DownloaderNotifier();
 });

@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/downloader/presentation/screens/home_screen.dart';
+import 'features/settings/presentation/screens/disclaimer_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
