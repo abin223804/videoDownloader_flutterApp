@@ -17,7 +17,7 @@ async function extractMetadata(url) {
         return output;
     } catch (error) {
         console.error(`Error extracting metadata for ${url}:`, error.stderr || error.message || error);
-        throw new Error('Failed to extract metadata');
+        throw new Error(error.stderr || error.message || 'Failed to extract metadata');
     }
 }
 
