@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../providers/downloader_provider.dart';
 import '../../domain/entities/media_info.dart';
+import '../../gallery/presentation/screens/gallery_screen.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -35,9 +40,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.download_done),
             onPressed: () {
-              // Navigate to gallery (To be implemented)
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GalleryScreen()));
             },
             tooltip: 'Gallery',
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+            },
+            tooltip: 'Settings',
           )
         ],
       ),
@@ -178,14 +190,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ? Text('${(format.filesize! / (1024 * 1024)).toStringAsFixed(1)} MB')
                 : const Text('Size Unknown'),
             trailing: FilledButton.tonal(
-              onPressed: () {
-                // To be implemented: Initiate download
-              },
+              onPressed: () => _initiateDownload(context, info, format.formatId),
               child: const Text('Download'),
             ),
           )),
         ],
       ),
     );
+  }
+
+  Future<void> _initiateDownload(BuildContext context, MediaInfo info, String formatId) async {
+    // Request storage and notification permissions
+    var status = await Permission.storage.request();
+    var notificationStatus = await Permission.notification.request();
+
+    if (!status.isGranted) {
+      if (context.mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Storage permission is required to save videos.')));
+      }
+      return;
+    }
+
+    try {
+      // Get the actual direct stream URL from our Node.js Backend
+      final downloadUrl = await ref.read(downloaderProvider.notifier).repository.getDownloadUrl(info.extractor.toLowerCase() == 'youtube' ? _urlController.text : _urlController.text, formatId); // Backend takes the URL and format string
+      final dir = await getApplicationDocumentsDirectory();
+      
+      final taskId = await FlutterDownloader.enqueue(
+        url: downloadUrl,
+        savedDir: dir.path,
+        fileName: '${info.title.replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_')}_$formatId.mp4',
+        showNotification: true,
+        openFileFromNotification: true,
+        saveInPublicStorage: true,
+      );
+
+      if (context.mounted && taskId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Download started...')));
+      }
+
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to start download: $e')));
+      }
+    }
   }
 }
