@@ -10,10 +10,8 @@ async function extractMetadata(url) {
         const output = await youtubedl(url, {
             dumpJson: true,
             noWarnings: true,
-            noCallHome: true,
             noCheckCertificate: true,
             preferFreeFormats: true,
-            youtubeSkipDashManifest: true,
             referer: url
         });
         return output;
@@ -37,7 +35,6 @@ async function getDownloadUrl(url, formatId = 'best') {
             dumpJson: true,
             format: formatId,
             noWarnings: true,
-            noCallHome: true,
             noCheckCertificate: true,
         });
         return {
