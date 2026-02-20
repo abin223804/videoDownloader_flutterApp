@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../data/models/downloaded_video.dart';
+import 'video_player_screen.dart';
 
 class GalleryScreen extends StatelessWidget {
   const GalleryScreen({super.key});
@@ -39,11 +41,24 @@ class GalleryScreen extends StatelessWidget {
                     : const Icon(Icons.video_file, size: 40),
                 title: Text(video.title, maxLines: 2, overflow: TextOverflow.ellipsis),
                 subtitle: Text('${(video.fileSize / (1024 * 1024)).toStringAsFixed(1)} MB'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.play_arrow),
-                  onPressed: () {
-                    // Play video
-                  },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () {
+                         Share.shareXFiles([XFile(video.localPath)], text: 'Check out this video: ${video.title}');
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.play_arrow),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                           builder: (_) => VideoPlayerScreen(videoPath: video.localPath, title: video.title)
+                        ));
+                      },
+                    ),
+                  ],
                 ),
                 onLongPress: () {
                   _showDeleteDialog(context, box, index);
