@@ -1,10 +1,11 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 
 class ApiClient {
   final Dio _dio;
 
   ApiClient(this._dio) {
-    _dio.options.baseUrl = 'http://10.0.2.2:3000/api'; // Use 10.0.2.2 for Android Emulator connecting to localhost
+    _dio.options.baseUrl = Platform.isAndroid ? 'http://10.0.2.2:3000/api' : 'http://127.0.0.1:3000/api'; // Android Emulator vs iOS Simulator
     _dio.options.connectTimeout = const Duration(seconds: 15);
     _dio.options.receiveTimeout = const Duration(seconds: 30);
     _dio.options.headers = {
