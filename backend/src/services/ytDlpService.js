@@ -1,19 +1,4 @@
 const youtubedl = require('youtube-dl-exec');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
-/**
- * Helper to write cookies to a temp file and return the path, or null if no cookies.
- */
-function getCookiesFile() {
-    if (process.env.YT_COOKIES) {
-        const cookiesPath = path.join(os.tmpdir(), 'yt-cookies.txt');
-        fs.writeFileSync(cookiesPath, process.env.YT_COOKIES);
-        return cookiesPath;
-    }
-    return null;
-}
 
 /**
  * Extracts metadata for a given URL without downloading.
@@ -22,21 +7,16 @@ function getCookiesFile() {
  */
 async function extractMetadata(url) {
     try {
-        const options = {
+        const output = await youtubedl(url, {
             dumpJson: true,
             noWarnings: true,
             noCheckCertificate: true,
             preferFreeFormats: true,
             referer: url
-        };
-
-        const cookiesFile = getCookiesFile();
-        if (cookiesFile) options.cookies = cookiesFile;
-
-        const output = await youtubedl(url, options);
+        });
         return output;
     } catch (error) {
-        console.error(`Error extracting metadata for ${url}:`, error);
+        console.error(`Error extracting metadata for ${url}:`, error.stderr || error.message || error);
         throw new Error('Failed to extract metadata');
     }
 }
@@ -51,24 +31,19 @@ async function extractMetadata(url) {
  */
 async function getDownloadUrl(url, formatId = 'best') {
     try {
-        const options = {
+        const output = await youtubedl(url, {
             dumpJson: true,
             format: formatId,
             noWarnings: true,
             noCheckCertificate: true,
-        };
-
-        const cookiesFile = getCookiesFile();
-        if (cookiesFile) options.cookies = cookiesFile;
-
-        const output = await youtubedl(url, options);
+        });
         return {
             url: output.url,
             ext: output.ext,
             title: output.title
         };
     } catch (error) {
-        console.error(`Error getting download URL for ${url}:`, error);
+        console.error(`Error getting download URL for ${url}:`, error.stderr || error.message || error);
         throw new Error('Failed to get direct download stream');
     }
 }
