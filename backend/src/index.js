@@ -6,6 +6,9 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// yt-dlp requires Python >= 3.10. We prepend Homebrew Python 3.11 to the path.
+process.env.PATH = '/opt/homebrew/opt/python@3.11/libexec/bin:/usr/local/opt/python@3.11/libexec/bin:' + process.env.PATH;
+
 const app = express();
 const port = process.env.PORT || 3000;
 
