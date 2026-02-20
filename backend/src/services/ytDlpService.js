@@ -1,4 +1,19 @@
 const youtubedl = require('youtube-dl-exec');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+/**
+ * Helper to write cookies to a temp file and return the path, or null if no cookies.
+ */
+function getCookiesFile() {
+    if (process.env.YT_COOKIES) {
+        const cookiesPath = path.join(os.tmpdir(), 'yt-cookies.txt');
+        fs.writeFileSync(cookiesPath, process.env.YT_COOKIES);
+        return cookiesPath;
+    }
+    return null;
+}
 
 /**
  * Extracts metadata for a given URL without downloading.
@@ -7,13 +22,18 @@ const youtubedl = require('youtube-dl-exec');
  */
 async function extractMetadata(url) {
     try {
-        const output = await youtubedl(url, {
+        const options = {
             dumpJson: true,
             noWarnings: true,
             noCheckCertificate: true,
             preferFreeFormats: true,
             referer: url
-        });
+        };
+
+        const cookiesFile = getCookiesFile();
+        if (cookiesFile) options.cookies = cookiesFile;
+
+        const output = await youtubedl(url, options);
         return output;
     } catch (error) {
         console.error(`Error extracting metadata for ${url}:`, error);
@@ -31,12 +51,17 @@ async function extractMetadata(url) {
  */
 async function getDownloadUrl(url, formatId = 'best') {
     try {
-        const output = await youtubedl(url, {
+        const options = {
             dumpJson: true,
             format: formatId,
             noWarnings: true,
             noCheckCertificate: true,
-        });
+        };
+
+        const cookiesFile = getCookiesFile();
+        if (cookiesFile) options.cookies = cookiesFile;
+
+        const output = await youtubedl(url, options);
         return {
             url: output.url,
             ext: output.ext,
