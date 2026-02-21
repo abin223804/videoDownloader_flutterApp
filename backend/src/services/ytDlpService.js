@@ -37,12 +37,13 @@ async function extractMetadata(url) {
         return output;
     } catch (error) {
         // tinyspawn/execa errors have stdout, stderr, shortMessage, message, exitCode
-        const errorMessage = error.stderr || error.stdout || error.shortMessage || error.message || 'Failed to extract metadata';
+        const errorMessage = error.stderr || error.stdout || error.shortMessage || error.message || (typeof error === 'string' ? error : JSON.stringify(error)) || 'Failed to extract metadata';
         console.error(`Error extracting metadata for ${url}:`, {
-            message: error.message,
-            stderr: error.stderr,
-            stdout: error.stdout,
-            exitCode: error.exitCode
+            rawError: error,
+            message: error?.message,
+            stderr: error?.stderr,
+            stdout: error?.stdout,
+            exitCode: error?.exitCode
         });
         throw new Error(typeof errorMessage === 'string' ? errorMessage.substring(0, 1000) : 'Failed to extract metadata');
     }
@@ -75,12 +76,13 @@ async function getDownloadUrl(url, formatId = 'best') {
             title: output.title
         };
     } catch (error) {
-        const errorMessage = error.stderr || error.stdout || error.shortMessage || error.message || 'Failed to get direct download stream';
+        const errorMessage = error.stderr || error.stdout || error.shortMessage || error.message || (typeof error === 'string' ? error : JSON.stringify(error)) || 'Failed to get direct download stream';
         console.error(`Error getting download URL for ${url}:`, {
-            message: error.message,
-            stderr: error.stderr,
-            stdout: error.stdout,
-            exitCode: error.exitCode
+            rawError: error,
+            message: error?.message,
+            stderr: error?.stderr,
+            stdout: error?.stdout,
+            exitCode: error?.exitCode
         });
         throw new Error(typeof errorMessage === 'string' ? errorMessage.substring(0, 1000) : 'Failed to get direct download stream');
     }
