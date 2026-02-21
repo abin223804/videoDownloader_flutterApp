@@ -36,8 +36,15 @@ async function extractMetadata(url) {
         const output = await youtubedl(url, options);
         return output;
     } catch (error) {
-        console.error(`Error extracting metadata for ${url}:`, error.stderr || error.message || error);
-        throw new Error(error.stderr || error.message || 'Failed to extract metadata');
+        // tinyspawn/execa errors have stdout, stderr, shortMessage, message, exitCode
+        const errorMessage = error.stderr || error.stdout || error.shortMessage || error.message || 'Failed to extract metadata';
+        console.error(`Error extracting metadata for ${url}:`, {
+            message: error.message,
+            stderr: error.stderr,
+            stdout: error.stdout,
+            exitCode: error.exitCode
+        });
+        throw new Error(typeof errorMessage === 'string' ? errorMessage.substring(0, 1000) : 'Failed to extract metadata');
     }
 }
 
@@ -68,8 +75,14 @@ async function getDownloadUrl(url, formatId = 'best') {
             title: output.title
         };
     } catch (error) {
-        console.error(`Error getting download URL for ${url}:`, error.stderr || error.message || error);
-        throw new Error('Failed to get direct download stream');
+        const errorMessage = error.stderr || error.stdout || error.shortMessage || error.message || 'Failed to get direct download stream';
+        console.error(`Error getting download URL for ${url}:`, {
+            message: error.message,
+            stderr: error.stderr,
+            stdout: error.stdout,
+            exitCode: error.exitCode
+        });
+        throw new Error(typeof errorMessage === 'string' ? errorMessage.substring(0, 1000) : 'Failed to get direct download stream');
     }
 }
 
