@@ -11,6 +11,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Force update yt-dlp to the absolute latest version
+RUN /app/node_modules/youtube-dl-exec/bin/yt-dlp -U
+
 # Copy the rest of the backend code
 COPY . .
 
