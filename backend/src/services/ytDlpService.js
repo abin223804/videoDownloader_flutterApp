@@ -52,7 +52,8 @@ async function extractMetadata(url) {
         const cookiesFile = getCookiesFile();
         if (cookiesFile) options.cookies = cookiesFile;
 
-        const output = await youtubedl(url, options);
+        const youtubedlCustom = youtubedl.create('/usr/local/bin/yt-dlp');
+        const output = await youtubedlCustom(url, options);
         return output;
     } catch (error) {
         // tinyspawn/execa errors have stdout, stderr, shortMessage, message, exitCode
@@ -89,7 +90,8 @@ async function getDownloadUrl(url, formatId = 'best') {
         const cookiesFile = getCookiesFile();
         if (cookiesFile) options.cookies = cookiesFile;
 
-        const output = await youtubedl(url, options);
+        const youtubedlCustom = youtubedl.create('/usr/local/bin/yt-dlp');
+        const output = await youtubedlCustom(url, options);
         return {
             url: output.url,
             ext: output.ext,
