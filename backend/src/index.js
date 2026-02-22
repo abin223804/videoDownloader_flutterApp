@@ -53,9 +53,45 @@ app.get('/api/debug/version', (req, res) => {
   });
 });
 
-// Health check endpoint
+// Check if YT_COOKIES env var is present and has valid content
+app.get('/api/debug/cookies', apiKeyAuth, (req, res) => {
+  const raw = process.env.YT_COOKIES;
+  if (!raw) {
+    return res.status(200).json({ status: 'MISSING', message: 'YT_COOKIES env var is not set' });
+  }
+  const content = raw.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+  const lines = content.split('\n').filter(l => l.trim() && !l.startsWith('#'));
+  const firstLine = lines[0] || '(empty)';
+  // Only show the domain column and cookie name (not value) for safety
+  const cookieNames = lines.map(l => {
+    const parts = l.split('\t');
+    return parts.length >= 6 ? `${parts[0]} → ${parts[5]}` : l.substring(0, 40);
+  });
+  res.status(200).json({
+    status: 'PRESENT',
+    totalLines: lines.length,
+    cookieNames,
+    firstLinePreview: firstLine.substring(0, 60),
+  });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
+});
+
+app.post('/api/debug/exec', apiKeyAuth, (req, res) => {
+  const { spawn } = require('child_process');
+  const args = req.body.args || [];
+  const child = spawn('/usr/local/bin/yt-dlp', args);
+  let stdoutData = '';
+  let stderrData = '';
+
+  child.stdout.on('data', (data) => { stdoutData += data.toString(); });
+  child.stderr.on('data', (data) => { stderrData += data.toString(); });
+
+  child.on('close', (code) => {
+    res.json({ code, stdout: stdoutData, stderr: stderrData });
+  });
 });
 
 app.listen(port, () => {
