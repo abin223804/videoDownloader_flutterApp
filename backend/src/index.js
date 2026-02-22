@@ -40,7 +40,7 @@ const mediaRoutes = require('./routes/media');
 app.use('/api/media', apiKeyAuth, mediaRoutes);
 
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'MediaSaver Pro Backend is running' });
+  res.status(200).json({ message: 'MediaSaver Pro  is running' });
 });
 
 // Health check endpoint

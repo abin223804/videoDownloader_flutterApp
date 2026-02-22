@@ -7,14 +7,16 @@ const os = require('os');
  * Helper to write cookies to a temp file and return the path, or null if no cookies.
  */
 function getCookiesFile() {
+    const cookiesPath = path.join(__dirname, '..', '..', 'yt-cookies.txt');
+    if (fs.existsSync(cookiesPath)) {
+        return cookiesPath;
+    }
     if (process.env.YT_COOKIES) {
-        const cookiesPath = path.join(os.tmpdir(), 'yt-cookies.txt');
-        // Render might inject literal \n or Windows \r\n, normalize them to actual newlines
+        const tempPath = path.join(os.tmpdir(), 'yt-cookies.txt');
         let cookiesContent = process.env.YT_COOKIES;
         cookiesContent = cookiesContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
-
-        fs.writeFileSync(cookiesPath, cookiesContent);
-        return cookiesPath;
+        fs.writeFileSync(tempPath, cookiesContent);
+        return tempPath;
     }
     return null;
 }
