@@ -45,8 +45,7 @@ async function extractMetadata(url) {
             dumpJson: true,
             noWarnings: true,
             noCheckCertificate: true,
-            preferFreeFormats: true,
-            extractorArgs: 'youtube:player_client=android'
+            preferFreeFormats: true
         };
 
         const cookiesFile = getCookiesFile();
@@ -83,8 +82,7 @@ async function getDownloadUrl(url, formatId = 'best') {
             dumpJson: true,
             format: formatId,
             noWarnings: true,
-            noCheckCertificate: true,
-            extractorArgs: 'youtube:player_client=android'
+            noCheckCertificate: true
         };
 
         const cookiesFile = getCookiesFile();
