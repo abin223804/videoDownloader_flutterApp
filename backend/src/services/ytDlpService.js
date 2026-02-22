@@ -7,17 +7,24 @@ const os = require('os');
  * Helper to write cookies to a temp file and return the path, or null if no cookies.
  */
 function getCookiesFile() {
+    // Docker workdir is /app. __dirname is /app/src/services
+    // Moving up two dirs resolves to /app/yt-cookies.txt
     const cookiesPath = path.join(__dirname, '..', '..', 'yt-cookies.txt');
+    console.log('[ytDlpService] Checking for cookies file at:', cookiesPath);
     if (fs.existsSync(cookiesPath)) {
+        console.log('[ytDlpService] Found bundled cookies file!');
         return cookiesPath;
     }
+    console.log('[ytDlpService] Bundled cookies file NOT found. Checking ENV...');
     if (process.env.YT_COOKIES) {
         const tempPath = path.join(os.tmpdir(), 'yt-cookies.txt');
         let cookiesContent = process.env.YT_COOKIES;
         cookiesContent = cookiesContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
         fs.writeFileSync(tempPath, cookiesContent);
+        console.log('[ytDlpService] Wrote cookies from ENV to:', tempPath);
         return tempPath;
     }
+    console.log('[ytDlpService] No cookies found anywhere.');
     return null;
 }
 
