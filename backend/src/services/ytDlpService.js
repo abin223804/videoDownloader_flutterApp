@@ -46,7 +46,7 @@ async function extractMetadata(url) {
             noWarnings: true,
             noCheckCertificate: true,
             preferFreeFormats: true,
-            referer: url
+            extractorArgs: 'youtube:player_client=ios'
         };
 
         const cookiesFile = getCookiesFile();
@@ -83,6 +83,7 @@ async function getDownloadUrl(url, formatId = 'best') {
             format: formatId,
             noWarnings: true,
             noCheckCertificate: true,
+            extractorArgs: 'youtube:player_client=ios'
         };
 
         const cookiesFile = getCookiesFile();
