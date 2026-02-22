@@ -9,7 +9,11 @@ const os = require('os');
 function getCookiesFile() {
     if (process.env.YT_COOKIES) {
         const cookiesPath = path.join(os.tmpdir(), 'yt-cookies.txt');
-        fs.writeFileSync(cookiesPath, process.env.YT_COOKIES);
+        // Render might inject literal \n or Windows \r\n, normalize them to actual newlines
+        let cookiesContent = process.env.YT_COOKIES;
+        cookiesContent = cookiesContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+
+        fs.writeFileSync(cookiesPath, cookiesContent);
         return cookiesPath;
     }
     return null;
